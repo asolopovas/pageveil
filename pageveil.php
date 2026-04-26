@@ -36,9 +36,14 @@ final class Settings
         return ['enabled' => (bool) $merged['enabled'], 'page_id' => (int) $merged['page_id']];
     }
 
+    public function sanitize(array $input): array
+    {
+        return ['enabled' => !empty($input['enabled']), 'page_id' => max(0, (int) ($input['page_id'] ?? 0))];
+    }
+
     public function save(array $input): array
     {
-        $clean = ['enabled' => !empty($input['enabled']), 'page_id' => max(0, (int) ($input['page_id'] ?? 0))];
+        $clean = $this->sanitize($input);
         update_option(OPTION, $clean);
         return $clean;
     }
@@ -106,14 +111,14 @@ final class Plugin
 
     public function menu(): void
     {
-        add_options_page(__('Pageveil', 'pageveil'), __('Pageveil', 'pageveil'), CAP, 'pageveil', [$this, 'page']);
+        add_management_page(__('Pageveil', 'pageveil'), __('Pageveil', 'pageveil'), CAP, 'pageveil', [$this, 'page']);
     }
 
     public function setting(): void
     {
         register_setting('pageveil_group', OPTION, [
             'type' => 'array',
-            'sanitize_callback' => fn ($i) => $this->s->save(is_array($i) ? $i : []),
+            'sanitize_callback' => fn ($i) => $this->s->sanitize(is_array($i) ? $i : []),
             'default' => $this->s->defaults(),
             'show_in_rest' => false,
         ]);
@@ -123,7 +128,16 @@ final class Plugin
     {
         if (!current_user_can(CAP)) wp_die(__('Insufficient permissions.', 'pageveil'));
         $o = $this->s->get();
-        $pages = get_pages(['sort_column' => 'post_title', 'post_status' => 'publish']);
+        $pages = get_posts([
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+            'numberposts'    => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'suppress_filters' => true,
+        ]);
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Pageveil', 'pageveil'); ?></h1>
@@ -139,8 +153,8 @@ final class Plugin
                         <th scope="row"><label for="pv-page"><?php esc_html_e('Page', 'pageveil'); ?></label></th>
                         <td><select id="pv-page" name="<?php echo esc_attr(OPTION); ?>[page_id]">
                             <option value="0"><?php esc_html_e('— Select —', 'pageveil'); ?></option>
-                            <?php foreach ($pages as $p): ?>
-                                <option value="<?php echo (int) $p->ID; ?>" <?php selected($o['page_id'], (int) $p->ID); ?>><?php echo esc_html($p->post_title); ?></option>
+                            <?php foreach ($pages as $pid): ?>
+                                <option value="<?php echo (int) $pid; ?>" <?php selected($o['page_id'], (int) $pid); ?>><?php echo esc_html(get_the_title((int) $pid)); ?></option>
                             <?php endforeach; ?>
                         </select></td>
                     </tr>
@@ -164,7 +178,7 @@ final class Plugin
         $bar->add_node([
             'id' => 'pageveil',
             'title' => esc_html__('Pageveil: ON', 'pageveil'),
-            'href' => admin_url('options-general.php?page=pageveil'),
+            'href' => admin_url('tools.php?page=pageveil'),
             'meta' => ['class' => 'pageveil-active'],
         ]);
     }
