@@ -1,0 +1,8 @@
+/vendor/
+/dist/
+/.svn-build/
+/.svn-build-assets/
+/.phpunit.cache/
+composer.lock
+*.log
+.DS_Store
