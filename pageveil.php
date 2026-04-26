@@ -1,12 +1,19 @@
 <?php
 /**
- * Plugin Name: Pageveil
- * Description: Veil the site with any chosen Gutenberg page — a chrome-free under-construction screen.
- * Version:     0.0.1
+ * Plugin Name:       Pageveil
+ * Plugin URI:        https://github.com/asolopovas/pageveil
+ * Description:       Veil the site with any chosen Gutenberg page — a chrome-free under-construction screen.
+ * Version:           0.0.1
  * Requires at least: 6.4
- * Requires PHP: 8.1
- * License:     GPL-2.0-or-later
- * Text Domain: pageveil
+ * Requires PHP:      8.1
+ * Author:            Andrius Solopovas
+ * Author URI:        https://github.com/asolopovas
+ * License:           MIT
+ * License URI:       https://opensource.org/licenses/MIT
+ * Text Domain:       pageveil
+ * Domain Path:       /languages
+ * Update URI:        false
+ * Network:           false
  */
 
 declare(strict_types=1);

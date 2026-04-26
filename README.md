@@ -30,4 +30,4 @@ Bump the version in `pageveil.php` and `readme.txt`, commit, then `make tag && m
 
 ## License
 
-GPL-2.0-or-later.
+MIT — see [LICENSE](LICENSE). MIT is GPL-compatible, satisfying WordPress.org plugin directory requirements.
